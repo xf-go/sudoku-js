@@ -1,16 +1,8 @@
-function makeRow(v = 0) {
-    const array = new Array(9);
-    array.fill(v);
-    return array;
-}
+const toolkit = require('./toolkit')
 
-function makeMatrix(v = 0) {
-    // return Array.from({length: 9})
-    //             .map(() => makeRow(v));
+const matrix = toolkit.makeMatrix();
+console.log(matrix)
 
-    return Array.from({length: 9}, () => makeRow(v));
-}
-
-const a = makeMatrix();
-// a[1][5] = 4;
-console.log(a)
+const a = Array.from({length: 9}, (v, i) => i);
+console.log(a);
+console.log(toolkit.shuffle(a));
