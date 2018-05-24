@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
     entry: {
         index: './js/index.js'
@@ -10,14 +12,16 @@ module.exports = {
         extensions: ['.js']
     },
     module: {
-        loader: [
+        rules: [
             {
                 test: /\.js$/,
-                loader: 'babel',
-                exclude: 'node_module',
-                query: {
-                    presets: ['es2015']
-                }
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['es2015']
+                    }
+                },
+                exclude: path.resolve(__dirname, 'node_module'),
             }
         ]
     }
