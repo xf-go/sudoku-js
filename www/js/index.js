@@ -70,11 +70,25 @@
 "use strict";
 
 
+var Grid = __webpack_require__(1);
+
+var grid = new Grid($('#container'));
+grid.build();
+grid.layout();
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var toolkit = __webpack_require__(1);
+// 生成九宫格
+var Toolkit = __webpack_require__(2);
 
 var Grid = function () {
     function Grid(container) {
@@ -86,7 +100,7 @@ var Grid = function () {
     _createClass(Grid, [{
         key: 'build',
         value: function build() {
-            var matrix = toolkit.makeMatrix();
+            var matrix = Toolkit.matrix.makeMatrix();
 
             var rowGroupClasses = ['row_g_top', 'row_g_middle', 'row_g_bottom'];
             var colGroupClasses = ['col_g_left', 'col_g_center', 'col_g_right'];
@@ -117,16 +131,18 @@ var Grid = function () {
     return Grid;
 }();
 
-var grid = new Grid($('#container'));
-grid.build();
-grid.layout();
+module.exports = Grid;
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var matrixToolkit = {
     makeRow: function makeRow() {
@@ -166,7 +182,40 @@ var matrixToolkit = {
     }
 };
 
-module.exports = matrixToolkit;
+/**
+ * 宫坐标系工具
+ */
+var boxToolkit = {};
+
+module.exports = function () {
+    function Toolkit() {
+        _classCallCheck(this, Toolkit);
+    }
+
+    _createClass(Toolkit, null, [{
+        key: "matrix",
+
+
+        /**
+         * 矩阵和数据相关的工具
+         */
+        get: function get() {
+            return matrixToolkit;
+        }
+
+        /**
+         * 宫坐标系相关工具
+         */
+
+    }, {
+        key: "box",
+        get: function get() {
+            return boxToolkit;
+        }
+    }]);
+
+    return Toolkit;
+}();
 
 /***/ })
 /******/ ]);

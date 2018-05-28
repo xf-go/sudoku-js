@@ -24,8 +24,37 @@ const matrixToolkit = {
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
+    },
+
+    // TODO 检查制定位置可以填写数字
+    checkFillable() {
+        return true;
     }
     
+};
+
+
+/**
+ * 宫坐标系工具
+ */
+const boxToolkit = {
+
 }
 
-module.exports = matrixToolkit
+
+module.exports = class Toolkit {
+
+    /**
+     * 矩阵和数据相关的工具
+     */
+    static get matrix() {
+        return matrixToolkit;
+    }
+
+    /**
+     * 宫坐标系相关工具
+     */
+    static get box() {
+        return boxToolkit;
+    }
+}
