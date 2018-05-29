@@ -1,1 +1,1 @@
-"# sudoku-js" 
+# sudoku-js
