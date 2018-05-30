@@ -1,5 +1,6 @@
 // 生成九宫格
 const Toolkit = require('../core/toolkit');
+const Sudoku = require('../core/sudoku');
 
 class Grid {
     constructor(container) {
@@ -7,7 +8,9 @@ class Grid {
     }
 
     build() {
-        const matrix = Toolkit.matrix.makeMatrix();
+        const sudoku = new Sudoku();
+        sudoku.make();
+        const matrix = sudoku.puzzleMatrix;
 
         const rowGroupClasses = ['row_g_top', 'row_g_middle', 'row_g_bottom'];
         const colGroupClasses = ['col_g_left', 'col_g_center', 'col_g_right'];
@@ -15,6 +18,7 @@ class Grid {
         const cells = matrix.map(rowValues => rowValues.map((cellValue, colIndex) => {
             return $('<span>')
                 .addClass(colGroupClasses[colIndex % 3])
+                .addClass(cellValue ? 'fixed' : 'empty')
                 .text(cellValue);
         }))
 

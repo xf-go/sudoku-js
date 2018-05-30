@@ -56,6 +56,7 @@ const boxToolkit = {
             const rowIndex = startRowIndex + Math.floor(cellIndex / 3);
             const colIndex = startColIndex + cellIndex % 3;
             result.push(matrix[rowIndex][colIndex]);
+            
         }
         return result;
     },
