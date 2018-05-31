@@ -66,6 +66,12 @@ body {
             &.empty {
                 color: white;
             }
+            &.mark1 {
+                background-color: lightpink;
+            }
+            &.mark2 {
+                background-color: lightgreen;
+            }
         }
 
         &.row_g_bottom {
@@ -84,6 +90,21 @@ body {
             }
         }
     }
+}
+
+@popupCellSize: 40px;
+.popup-num {
+    .container();
+    position: absolute;
+    padding-left: 0;
+    .row {
+        >span {
+            width: @popupCellSize;
+            height: @popupCellSize;
+            line-height: @popupCellSize;
+        }
+    }
+    
 }
 
 .dashboard {

@@ -1,10 +1,11 @@
 // 生成九宫格
 const Toolkit = require('../core/toolkit');
 const Sudoku = require('../core/sudoku');
+const Checker = require('../core/checker');
 
 class Grid {
-    constructor(container) {
-        this._container = container;
+    constructor($container) {
+        this._$container = $container;
     }
 
     build() {
@@ -29,17 +30,56 @@ class Grid {
                 .append(spanArray);
         })
 
-        this._container.append(divArray);
+        this._$container.append(divArray);
     }
 
     layout() {
-        const width = $('span:first', this._container).width();
-        $('span', this._container)
+        const width = $('span:first', this._$container).width();
+        $('span', this._$container)
             .height(width)
             .css({
                 'line-height': `${width}px`,
                 'font-size': width < 32 ? `${width / 2}px` : ''
             });
+    }
+
+    rebuild() {
+        this._$container.empty();
+        this.build();
+        this.layout();
+    }
+
+    check() {
+        // 从界面获取需要检查的数据
+        const data = this._$container.children()
+            .map((rowIndex, div) => {
+                return $(div).children()
+                    .map((colIndex, span) => parseInt($(span).text()) || 0);
+            })
+            .toArray()
+            .map($data => $data.toArray());
+
+        console.log(data);
+
+        const checker = new Checker(data);
+    }
+
+    reset() {
+
+    }
+
+    /**
+     * 清楚错误标记
+     */
+    clear() {
+
+    }
+
+    bindPopup(popupNumbers) {
+        this._$container.on('click', 'span', e => {
+            const $cell = $(e.target);
+            popupNumbers.popup($cell);
+        })
     }
 }
 

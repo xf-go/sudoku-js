@@ -197,10 +197,30 @@ module.exports = function () {
 
 
 var Grid = __webpack_require__(2);
+var PopupNumbers = __webpack_require__(6);
 
 var grid = new Grid($('#container'));
 grid.build();
 grid.layout();
+
+var popupnumbers = new PopupNumbers($('#popupNumbers'));
+grid.bindPopup(popupnumbers);
+
+$('#check').on('click', function (e) {
+    grid.check();
+});
+
+$('#reset').on('click', function (e) {
+    grid.reset();
+});
+
+$('#clear').on('click', function (e) {
+    grid.clear();
+});
+
+$('#rebuild').on('click', function (e) {
+    grid.rebuild();
+});
 
 /***/ }),
 /* 2 */
@@ -216,12 +236,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // 生成九宫格
 var Toolkit = __webpack_require__(0);
 var Sudoku = __webpack_require__(3);
+var Checker = __webpack_require__(5);
 
 var Grid = function () {
-    function Grid(container) {
+    function Grid($container) {
         _classCallCheck(this, Grid);
 
-        this._container = container;
+        this._$container = $container;
     }
 
     _createClass(Grid, [{
@@ -244,15 +265,57 @@ var Grid = function () {
                 return $('<div>').addClass('row').addClass(rowGroupClasses[rowIndex % 3]).append(spanArray);
             });
 
-            this._container.append(divArray);
+            this._$container.append(divArray);
         }
     }, {
         key: 'layout',
         value: function layout() {
-            var width = $('span:first', this._container).width();
-            $('span', this._container).height(width).css({
+            var width = $('span:first', this._$container).width();
+            $('span', this._$container).height(width).css({
                 'line-height': width + 'px',
                 'font-size': width < 32 ? width / 2 + 'px' : ''
+            });
+        }
+    }, {
+        key: 'rebuild',
+        value: function rebuild() {
+            this._$container.empty();
+            this.build();
+            this.layout();
+        }
+    }, {
+        key: 'check',
+        value: function check() {
+            // 从界面获取需要检查的数据
+            var data = this._$container.children().map(function (rowIndex, div) {
+                return $(div).children().map(function (colIndex, span) {
+                    return parseInt($(span).text()) || 0;
+                });
+            }).toArray().map(function ($data) {
+                return $data.toArray();
+            });
+
+            console.log(data);
+
+            var checker = new Checker(data);
+        }
+    }, {
+        key: 'reset',
+        value: function reset() {}
+
+        /**
+         * 清楚错误标记
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear() {}
+    }, {
+        key: 'bindPopup',
+        value: function bindPopup(popupNumbers) {
+            this._$container.on('click', 'span', function (e) {
+                var $cell = $(e.target);
+                popupNumbers.popup($cell);
             });
         }
     }]);
@@ -394,6 +457,211 @@ module.exports = function () {
     }]);
 
     return Generator;
+}();
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// 检查数据解决方案
+
+function checkArray(array) {
+    var length = array.length;
+    var marks = new Array(length);
+    marks.fill(true);
+
+    for (var i = 0; i < length; i++) {
+        if (!marks[i]) {
+            continue;
+        }
+
+        var v = array[i];
+        // 是否有效，0 - 无效，1-9 有效
+        if (!v) {
+            marks[i] = false;
+            continue;
+        }
+
+        // 是否有重复: i+1 ~ 9, 是否和 i 位置的数据重复
+        for (var j = i + 1; j < length; j++) {
+            if (v === array[j]) {
+                marks[i] = marks[j] = false;
+                continue;
+            }
+        }
+    }
+
+    return marks;
+}
+
+var Toolkit = __webpack_require__(0);
+
+// 输入：matrix，用户完成的数独数据，9 x 9
+// 处理： 对 matrix 行、列宫进行检查，病填写 marks
+// 输出：检查是否成功、marks
+module.exports = function () {
+    function Checker(matrix) {
+        _classCallCheck(this, Checker);
+
+        this._matrix = matrix;
+        this._matrixMarks = Toolkit.matrix.makeMatrix(true);
+    }
+
+    _createClass(Checker, [{
+        key: 'check',
+        value: function check() {
+            this.checkRows();
+            this.checkCols();
+            this.checkBoxes();
+
+            // 检查是否成功
+            this._success = this._matrixMarks.every(function (row) {
+                return row.every(function (mark) {
+                    return mark;
+                });
+            });
+            return this._success;
+        }
+    }, {
+        key: 'checkRows',
+        value: function checkRows() {
+            for (var rowIndex = 0; rowIndex < 9; rowIndex++) {
+                var row = this._matrix[rowIndex];
+                var marks = checkArray(row);
+
+                for (var colIndex = 0; colIndex < marks.length; colIndex++) {
+                    if (!marks[colIndex]) {
+                        this._matrixMarks[rowIndex][colIndex] = false;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'checkCols',
+        value: function checkCols() {
+            for (var colIndex = 0; colIndex < 9; colIndex++) {
+                var cols = [];
+                for (var rowIndex = 0; rowIndex < 9; rowIndex++) {
+                    cols[rowIndex] = this._matrix[rowIndex][colIndex];
+                }
+
+                var marks = checkArray(cols);
+                for (var _rowIndex = 0; _rowIndex < marks.length; _rowIndex++) {
+                    if (!marks[_rowIndex]) {
+                        this._matrixMarks[_rowIndex][colIndex] = false;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'checkBoxes',
+        value: function checkBoxes() {
+            for (var boxIndex = 0; boxIndex < 9; boxIndex++) {
+                var boxes = Toolkit.box.getBoxCells(matrix, boxIndex);
+                var marks = checkArray(boxes);
+                for (var cellIndex = 0; cellIndex < 9; cellIndex++) {
+                    if (!marks[cellIndex]) {
+                        var _Toolkit$box$convertF = Toolkit.box.convertFromBoxIndex(boxIndex, cellIndex),
+                            rowIndex = _Toolkit$box$convertF.rowIndex,
+                            colIndex = _Toolkit$box$convertF.colIndex;
+
+                        this._matrixMarks[rowIndex][colIndex] = false;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'matrixMarks',
+        get: function get() {
+            return this._matrixMarks;
+        }
+    }, {
+        key: 'isSuccess',
+        get: function get() {
+            return this._success;
+        }
+    }]);
+
+    return Checker;
+}();
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// 处理弹出的操作面板
+
+module.exports = function () {
+    function PopupNumbers($panel) {
+        var _this = this;
+
+        _classCallCheck(this, PopupNumbers);
+
+        this._$panel = $panel.hide().removeClass('hidden');
+
+        this._$panel.on('click', 'span', function (e) {
+            var $cell = _this._$targetCell;
+            var $span = $(e.target);
+
+            if ($span.hasClass('mark1')) {
+                if ($cell.hasClass('mark1')) {
+                    $cell.removeClass('mark1');
+                } else {
+                    $cell.removeClass('mark2').addClass('mark1');
+                }
+            } else if ($span.hasClass('mark2')) {
+                if ($cell.hasClass('mark2')) {
+                    $cell.removeClass('mark2');
+                } else {
+                    $cell.removeClass('mark1').addClass('mark2');
+                }
+            } else if ($span.hasClass('empty')) {
+                $cell.text(0).addClass('empty');
+            } else {
+                // 1-9，回填数字
+                $cell.removeClass('empty').text($span.text());
+            }
+
+            _this.hide();
+        });
+    }
+
+    _createClass(PopupNumbers, [{
+        key: 'popup',
+        value: function popup($cell) {
+            this._$targetCell = $cell;
+
+            var _$cell$position = $cell.position(),
+                left = _$cell$position.left,
+                top = _$cell$position.top;
+
+            this._$panel.css({
+                left: left + 'px',
+                top: top + 'px'
+            }).show();
+        }
+    }, {
+        key: 'hide',
+        value: function hide() {
+            this._$panel.hide();
+        }
+    }]);
+
+    return PopupNumbers;
 }();
 
 /***/ })
