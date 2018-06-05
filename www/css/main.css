@@ -57,11 +57,23 @@ body > * {
 .container .row > span.empty {
   color: white;
 }
-.container .row > span.mark1 {
+.container .row > span.error {
   background-color: lightpink;
+}
+.container .row > span.error.empty {
+  color: lightpink;
+}
+.container .row > span.mark1 {
+  background-color: lightblue;
+}
+.container .row > span.mark1.empty {
+  color: lightblue;
 }
 .container .row > span.mark2 {
   background-color: lightgreen;
+}
+.container .row > span.mark2.empty {
+  color: lightgreen;
 }
 .container .row.row_g_bottom > span {
   border-bottom-width: 1px;
@@ -104,11 +116,23 @@ body > * {
 .popup-num .row > span.empty {
   color: white;
 }
-.popup-num .row > span.mark1 {
+.popup-num .row > span.error {
   background-color: lightpink;
+}
+.popup-num .row > span.error.empty {
+  color: lightpink;
+}
+.popup-num .row > span.mark1 {
+  background-color: lightblue;
+}
+.popup-num .row > span.mark1.empty {
+  color: lightblue;
 }
 .popup-num .row > span.mark2 {
   background-color: lightgreen;
+}
+.popup-num .row > span.mark2.empty {
+  color: lightgreen;
 }
 .popup-num .row.row_g_bottom > span {
   border-bottom-width: 1px;

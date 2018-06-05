@@ -207,7 +207,9 @@ var popupnumbers = new PopupNumbers($('#popupNumbers'));
 grid.bindPopup(popupnumbers);
 
 $('#check').on('click', function (e) {
-    grid.check();
+    if (grid.check()) {
+        alert('成功');
+    }
 });
 
 $('#reset').on('click', function (e) {
@@ -250,7 +252,7 @@ var Grid = function () {
         value: function build() {
             var sudoku = new Sudoku();
             sudoku.make();
-            var matrix = sudoku.puzzleMatrix;
+            var matrix = sudoku.solutionMatrix;
 
             var rowGroupClasses = ['row_g_top', 'row_g_middle', 'row_g_bottom'];
             var colGroupClasses = ['col_g_left', 'col_g_center', 'col_g_right'];
@@ -295,26 +297,47 @@ var Grid = function () {
                 return $data.toArray();
             });
 
-            console.log(data);
-
             var checker = new Checker(data);
+            if (checker.check()) {
+                return true;
+            }
+
+            // 检查不成功，进行标记
+            var marks = checker.matrixMarks;
+            this._$container.children().each(function (rowIndex, div) {
+                $(div).children().each(function (colIndex, span) {
+                    var $span = $(span);
+                    if ($span.is('.fixed') || marks[rowIndex][colIndex]) {
+                        $span.removeClass('error');
+                    } else {
+                        $span.addClass('error');
+                    }
+                });
+            });
         }
     }, {
         key: 'reset',
-        value: function reset() {}
+        value: function reset() {
+            this._$container.find('span:not(.fixed)').removeClass('error mark1 mark2').addClass('empty').text(0);
+        }
 
         /**
-         * 清楚错误标记
+         * 清除错误标记
          */
 
     }, {
         key: 'clear',
-        value: function clear() {}
+        value: function clear() {
+            this._$container.find('span.error').removeClass('error');
+        }
     }, {
         key: 'bindPopup',
         value: function bindPopup(popupNumbers) {
             this._$container.on('click', 'span', function (e) {
                 var $cell = $(e.target);
+                if ($cell.is('.fixed')) {
+                    return;
+                }
                 popupNumbers.popup($cell);
             });
         }
@@ -564,7 +587,7 @@ module.exports = function () {
         key: 'checkBoxes',
         value: function checkBoxes() {
             for (var boxIndex = 0; boxIndex < 9; boxIndex++) {
-                var boxes = Toolkit.box.getBoxCells(matrix, boxIndex);
+                var boxes = Toolkit.box.getBoxCells(this._matrix, boxIndex);
                 var marks = checkArray(boxes);
                 for (var cellIndex = 0; cellIndex < 9; cellIndex++) {
                     if (!marks[cellIndex]) {
